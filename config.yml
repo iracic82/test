@@ -1,1 +1,10 @@
 version: "3"
+virtualmachines:
+- name: lab-host
+  image: ubuntu-os-cloud/ubuntu-2204-lts
+  machine_type: n1-standard-2
+  memory: 8192
+  cpus: 2
+  allow_external_ingress:
+  - https
+  - high-ports

@@ -1,0 +1,90 @@
+#!/bin/bash
+set -e
+
+echo "[+] Installing prerequisites..."
+apt update && apt install -y curl iproute2 iputils-ping docker.io strongswan unar
+
+echo "[+] Installing Containerlab..."
+bash -c "$(curl -sL https://get.containerlab.dev)"
+
+# Enable IP forwarding on host
+echo "[+] Enabling IP forwarding..."
+echo 'net.ipv4.ip_forward=1' >> /etc/sysctl.conf
+sysctl -p
+
+echo "[+] Downloading Docker image from S3..."
+curl -o /root/ipsec_ha.tar https://infoblox-igor.s3.eu-west-1.amazonaws.com/ipsec_ha.tar
+
+echo "[+] Loading Docker image..."
+docker load -i /root/ipsec_ha.tar
+
+echo "[+] Tagging image as iracic82/frr-ipsec:placeholder..."
+docker tag harbor.services.sdp.infoblox.com/infobloxcto-dev/atlas.tap:ipsec-ha-test iracic82/frr-ipsec:v2
+
+# Create dummy FRR config
+cat <<EOF > /root/frr.conf
+frr version 8.4
+frr defaults traditional
+hostname frr1
+no ipv6 forwarding
+interface eth1
+ ip address 192.168.100.1/24
+!
+interface eth0
+!
+router bgp 65000
+ bgp router-id 192.168.100.1
+ neighbor 192.168.3.1 remote-as 65001
+!
+line vty
+EOF
+
+# Containerlab topology
+cat <<EOF > /root/clab-lab.yml
+name: ipsec-vti-lab
+topology:
+  nodes:
+    frr1:
+      kind: linux
+      image: iracic82/frr-ipsec:v2
+      network-mode: host
+      binds:
+        - /root/frr.conf:/etc/frr/frr.conf
+      exec:
+        - sysctl -w net.ipv4.ip_forward=1
+
+    client1:
+      kind: linux
+      image: alpine:latest
+
+  links:
+    - endpoints: ["frr1:eth1", "client1:eth1"]
+EOF
+
+echo "[+] Deploying Containerlab topology..."
+containerlab deploy -t /root/clab-lab.yml
+
+# Summary instructions
+cat <<'EOF' > /root/lab_info.txt
+
+=========================================================
+ ✅ Lab is ready:
+
+   • frr1 (router with IPsec+FRR):
+       - eth1: 192.168.100.1/24   ← LAN toward client
+       - eth0: host network (Internet)
+       - Container from local image: ipsec_ha.tar
+
+   • client1 (host):
+       - Alpine base image with eth1
+
+ 🧪 Useful commands:
+   - docker exec -it clab-ipsec-vti-lab-frr1 bash
+   - ipsec statusall
+   - show ip bgp summary (inside vtysh)
+
+=========================================================
+EOF
+
+echo 'cat /root/lab_info.txt' >> /root/.bashrc
+echo "[+] Setup complete. Re-open your terminal to see the lab summary."
