@@ -3,29 +3,18 @@ set -e
 
 # Set runtime variables
 
- agent variable set AWS_ID ${INSTRUQT_AWS_ACCOUNT_INFOBLOX_DEMO_ACCOUNT_ID}
+ 
  agent variable set User_Email ${INSTRUQT_USER_EMAIL}
- agent variable set AWS_USER ${INSTRUQT_AWS_ACCOUNT_INFOBLOX_DEMO_USERNAME}
- agent variable set AWS_PASS ${INSTRUQT_AWS_ACCOUNT_INFOBLOX_DEMO_PASSWORD}
+ 
  agent variable set Sandbox_ID ${INSTRUQT_PARTICIPANT_ID}
 
 
- agent variable set AZURE_SUBSCRIPTION_NAME ${INSTRUQT_AZURE_SUBSCRIPTION_INFOBLOX_TENANT_SUBSCRIPTION_NAME}
- agent variable set AZURE_SUBSCRIPTION_ID ${INSTRUQT_AZURE_SUBSCRIPTION_INFOBLOX_TENANT_SUBSCRIPTION_ID}
- agent variable set AZURE_SUBSCRIPTION_USERNAME ${INSTRUQT_AZURE_SUBSCRIPTION_INFOBLOX_TENANT_USERNAME}
- agent variable set AZURE_SUBSCRIPTION_PASSWORD ${INSTRUQT_AZURE_SUBSCRIPTION_INFOBLOX_TENANT_PASSWORD}
+ 
 
 
 # Set env variables AWS and Azure
 
-echo "export TF_VAR_Access_Key_AWS=${INSTRUQT_AWS_ACCOUNT_INFOBLOX_DEMO_AWS_ACCESS_KEY_ID} " >> /root/.bashrc
-echo "export TF_VAR_Access_Secret_AWS=${INSTRUQT_AWS_ACCOUNT_INFOBLOX_DEMO_AWS_SECRET_ACCESS_KEY} " >> /root/.bashrc
-echo "export INPUT_ENV_VAR_NAME=${INSTRUQT_USER_EMAIL}" >> /root/.bashrc
-echo "export TF_VAR_subscription=${INSTRUQT_AZURE_SUBSCRIPTION_INFOBLOX_TENANT_SUBSCRIPTION_ID} " >> /root/.bashrc
-echo "export TF_VAR_client=${INSTRUQT_AZURE_SUBSCRIPTION_INFOBLOX_TENANT_SPN_ID} " >> /root/.bashrc
-echo "export TF_VAR_clientsecret=${INSTRUQT_AZURE_SUBSCRIPTION_INFOBLOX_TENANT_SPN_PASSWORD} " >> /root/.bashrc
-echo "export TF_VAR_tenantazure=${INSTRUQT_AZURE_SUBSCRIPTION_INFOBLOX_TENANT_TENANT_ID} " >> /root/.bashrc
-echo "export Infoblox_Token=${Infoblox_Token} " >> /root/.bashrc
+
 echo "export INSTRUQT_EMAIL=${INSTRUQT_USER_EMAIL} " >> /root/.bashrc
 
 echo "[+] Installing prerequisites..."
